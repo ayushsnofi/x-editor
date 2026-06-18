@@ -1,0 +1,14 @@
+{
+  "name": "x-editor",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "build": "pnpm run --parallel build",
+    "typecheck": "pnpm run --parallel typecheck"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
