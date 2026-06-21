@@ -107,11 +107,20 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
   },
 
   updateDocument: (localId, patch) => {
-    set((s) => ({
-      documents: s.documents.map((d) =>
-        d.localId === localId ? { ...d, ...patch } : d,
-      ),
-    }));
+    set((s) => {
+      const index = s.documents.findIndex((d) => d.localId === localId);
+      if (index === -1) return s;
+
+      const current = s.documents[index];
+      const hasChange = (Object.keys(patch) as (keyof OpenDocument)[]).some(
+        (key) => patch[key] !== current[key],
+      );
+      if (!hasChange) return s;
+
+      const documents = [...s.documents];
+      documents[index] = { ...current, ...patch };
+      return { documents };
+    });
   },
 
   setCurrentPage: (page) => set({ currentPage: page }),

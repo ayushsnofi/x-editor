@@ -29,9 +29,17 @@ export function PdfCanvas({
   const textLayerRef = useRef<HTMLDivElement>(null);
   const { pdf, numPages, loading, error, getPage } = usePdfDocument(file);
   const renderTaskRef = useRef<pdfjs.RenderTask | null>(null);
+  const reportedPageCountRef = useRef(0);
 
   useEffect(() => {
-    if (numPages > 0) onPageCount(numPages);
+    reportedPageCountRef.current = 0;
+  }, [file]);
+
+  useEffect(() => {
+    if (numPages > 0 && numPages !== reportedPageCountRef.current) {
+      reportedPageCountRef.current = numPages;
+      onPageCount(numPages);
+    }
   }, [numPages, onPageCount]);
 
   useEffect(() => {

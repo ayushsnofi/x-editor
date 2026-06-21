@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,7 +12,12 @@ import { useDocumentStore } from "@/stores/documentStore";
 import { PdfCanvas } from "@/components/viewer/PdfCanvas";
 
 export function ViewerPanel() {
-  const activeDoc = useDocumentStore((s) => s.getActiveDocument());
+  const activeDoc = useDocumentStore((s) =>
+    s.activeLocalId
+      ? s.documents.find((d) => d.localId === s.activeLocalId)
+      : undefined,
+  );
+  const updateDocument = useDocumentStore((s) => s.updateDocument);
   const currentPage = useDocumentStore((s) => s.currentPage);
   const zoom = useDocumentStore((s) => s.zoom);
   const zoomMode = useDocumentStore((s) => s.zoomMode);
@@ -38,6 +44,14 @@ export function ViewerPanel() {
     const w = window.open(url);
     w?.addEventListener("load", () => w.print());
   };
+
+  const handlePageCount = useCallback(
+    (count: number) => {
+      if (!activeDoc) return;
+      updateDocument(activeDoc.localId, { pageCount: count });
+    },
+    [activeDoc?.localId, updateDocument],
+  );
 
   return (
     <main className="flex h-full flex-col bg-[#181825]">
@@ -139,11 +153,7 @@ export function ViewerPanel() {
             zoomMode={zoomMode}
             rotation={rotation}
             highlight={activeHighlight}
-            onPageCount={(count) => {
-              useDocumentStore.getState().updateDocument(activeDoc.localId, {
-                pageCount: count,
-              });
-            }}
+            onPageCount={handlePageCount}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-[#6c7086]">
